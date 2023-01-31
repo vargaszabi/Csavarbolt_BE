@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Rendeles } from './rendeles.entity';
 
 @Entity()
 export class Csavar{
@@ -14,6 +15,9 @@ export class Csavar{
     @Column()
     keszlet: number;
 
-    @Column()
+    @Column({type : 'decimal', scale: 2})
     ar: number
+
+    @OneToMany(() => Rendeles, (rendeles) => rendeles.csavar_id)
+    rendeles: Rendeles[]
 }
