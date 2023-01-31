@@ -7,8 +7,8 @@ export class Rendeles{
     id: number;
 
     @ManyToOne(() => Csavar, (csavar) => csavar.id)
-    csavar_id : Csavar
+    csavar_id : number
 
-    @Column()
+    @Column('int')
     db: number;
 }

@@ -1,7 +1,8 @@
 import { Body, Controller, Get, Post, Render, Delete, Param } from '@nestjs/common';
-import { DataSource, DeleteDateColumn } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { AppService } from './app.service';
 import { Csavar } from './csavar.entity';
+import { Rendeles } from './rendeles.entity';
 
 @Controller()
 export class AppController {
@@ -41,11 +42,25 @@ export class AppController {
   }
 
   @Delete('/api/csavar/:id')
-  deleteCourse(@Param('id') id: number){
+  async deleteCourse(@Param('id') id: number){
     const csavarRepo = this.dataSource.getRepository(Csavar);
-    csavarRepo.delete(id);
+    await csavarRepo.delete(id);
   }
 
   @Post('/csavar/:id/rendeles')
-  newRendeles
+  async csavarRendeles(@Param('id') id : number, @Body() rendeles : Rendeles ) {
+    const rendelesRepo = this.dataSource.getRepository(Rendeles)
+    const csavarRepo = this.dataSource.getRepository(Csavar)
+    let csavarkeszlet  = (await csavarRepo.findOneBy({id : id})).keszlet
+    if(csavarkeszlet - rendeles.db < 0 ) {
+      return { error: "Nincs elég csavar" }
+    } else {
+      csavarRepo.update({id : id}, {keszlet : csavarkeszlet-rendeles.db })
+
+      let keszrendeles : Rendeles = {id : undefined, csavar_id : id,  db : rendeles.db  }
+      rendelesRepo.save(keszrendeles)
+      return {osszertek : rendeles.db * (await csavarRepo.findOneBy({id : id})).ar }
+    }
+
+  }
 }
